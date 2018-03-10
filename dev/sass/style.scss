@@ -1,0 +1,18 @@
+$primary-color: orange;
+
+.sui-textbox
+{
+    border: 1px solid black;
+}
+
+.sui-textbox:hover
+{
+    border-color: $primary-color;
+}
+
+.sui-button
+{
+    border: 1px solid darken($primary-color, 10%);
+    background-color: $primary-color;
+    padding: .2em;
+}

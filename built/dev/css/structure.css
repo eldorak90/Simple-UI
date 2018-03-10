@@ -1,0 +1,16 @@
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0; }
+
+.sui-page {
+  display: none;
+  height: 100%;
+  width: 100%; }
+
+.sui-page:last-child {
+  display: block; }
+
+.sui-textbox {
+  width: 100%; }

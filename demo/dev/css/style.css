@@ -1,0 +1,10 @@
+.sui-textbox {
+  border: 1px solid black; }
+
+.sui-textbox:hover {
+  border-color: orange; }
+
+.sui-button {
+  border: 1px solid #cc8400;
+  background-color: orange;
+  padding: .2em; }
