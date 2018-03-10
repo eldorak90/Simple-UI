@@ -10,6 +10,11 @@ class SuiObject
     {
         this.element.classList.remove(cssClass);
     }
+
+    setCSSValue(property, value)
+    {
+        $(this.element).css(property, value);
+    }
 }
 
 class Core extends SuiObject
@@ -34,6 +39,12 @@ class Core extends SuiObject
 
 class Container extends SuiObject
 {
+    constructor()
+    {
+        super();
+        this.element = document.createElement("div");
+    }
+
     addChild(child)
     {
         this.element.appendChild(child.element);
@@ -45,37 +56,19 @@ class Container extends SuiObject
     }
 }
 
-class Page extends Container
-{
-    constructor()
-    {
-        super();
-        this.element = document.createElement("div");
-        this.addCssClass("sui-page");
-    }
-}
 
 class Control extends SuiObject
 {
     
 }
 
-class Button extends Control
+class Spacer extends SuiObject
 {
     constructor()
     {
         super();
         this.element = document.createElement("div");
-        this.addCssClass("sui-button");
+        this.addCssClass("SUI-Spacer");
     }
 }
 
-class TextBox extends Control
-{
-    constructor()
-    {
-        super();
-        this.element = document.createElement("input");
-        this.addCssClass("sui-textbox");
-    }
-}

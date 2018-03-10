@@ -4,13 +4,27 @@ body {
   padding: 0;
   margin: 0; }
 
-.sui-page {
+.SUI-Page {
   display: none;
   height: 100%;
   width: 100%; }
 
-.sui-page:last-child {
+.SUI-Page:last-child {
   display: block; }
 
-.sui-textbox {
+.SUI-TextBox {
   width: 100%; }
+
+.SUI-VFlexContainer {
+  display: flex;
+  flex-direction: column; }
+
+.SUI-HFlexContainer {
+  display: flex;
+  flex-direction: row; }
+
+.SUI-Icon::after {
+  content: attr(icon); }
+
+.SUI-Spacer {
+  flex: 1; }
