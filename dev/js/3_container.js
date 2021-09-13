@@ -1,5 +1,4 @@
-
-class Page extends Container
+class Page extends SuiContainer
 {
     constructor()
     {
@@ -40,7 +39,7 @@ class Page extends Container
     }
 }
 
-class HFlexContainer extends Container
+class HFlexContainer extends SuiContainer
 {
     constructor()
     {
@@ -49,7 +48,7 @@ class HFlexContainer extends Container
     }
 }
 
-class VFlexContainer extends Container
+class VFlexContainer extends SuiContainer
 {
     constructor()
     {
@@ -58,11 +57,59 @@ class VFlexContainer extends Container
     }
 }
 
-class ButtonContainer extends Container
+class ButtonContainer extends SuiContainer
 {
     constructor()
     {
         super();
         this.addCssClass("SUI-ButtonContainer");
+    }
+}
+
+class Form extends SuiContainer
+{
+    constructor()
+    {
+        super();
+        this.addCssClass("SUI-Form");
+    }
+
+
+}
+
+class SimpleForm extends Form
+{
+    
+    constructor()
+    {
+        super();
+        this.addCssClass("SUI-SimpleForm");
+        this.controls = [];
+    }
+
+    addChild(child)
+    {
+        this.controls.push(child);
+    }
+
+    removeChild(child)
+    {
+        this.controls.pop(child);
+    }
+
+    setLayout()
+    {
+
+    }
+
+    refresh()
+    {
+        for(var control in this.controls)
+        {
+            var c = new HFlexContainer();
+            c.addChild(control.getLabel());
+            c.addChild(control.element);
+            this.addChild(c);
+        }
     }
 }

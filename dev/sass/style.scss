@@ -1,11 +1,11 @@
 $primary-color: orange;
 
-.sui-textbox
+.sui-textbox, .sui-textarea
 {
     border: 1px solid black;
 }
 
-.sui-textbox:hover
+.sui-textbox:hover, .sui-textarea:hover
 {
     border-color: $primary-color;
 }
@@ -15,4 +15,48 @@ $primary-color: orange;
     border: 1px solid darken($primary-color, 10%);
     background-color: $primary-color;
     padding: .2em;
+}
+
+.sui-button:hover
+{
+    background-color: lighten($primary-color, 20%)
+}
+
+.sui-checkbox
+{
+    border: 1px solid black;
+}
+
+.sui-checkbox:hover
+{
+    border-color: $primary-color;
+}
+
+.SUI-ListItem:hover
+{
+    background: $primary-color;
+}
+
+.SUI-Slider
+{
+}
+
+.SUI-Slider-bar
+{
+    border: 1px solid black;
+    background-color: $primary-color;
+    border-radius: 1rem;
+}
+
+.SUI-Slider-drag
+{    
+    border: 1px solid black;
+    border-radius: 1rem;
+    background-color: $primary-color;
+}
+
+.SUI-Slider-tag
+{
+    background: white;
+    border: .1rem solid black;
 }

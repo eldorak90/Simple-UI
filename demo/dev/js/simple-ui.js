@@ -2,8 +2,149 @@ var ICON_POS = Object.freeze({
     LEFT : 0,
     RIGHT : 1
 });
+
+this.counter = 0;
+
+function getNewId()
+{
+	return "SUI_" + this.counter++;
+}
+
+class SimpleArray
+{
+    constructor()
+    {
+        this.array = [];
+    }
+
+    push(value)
+    {
+        this.array.push(value);
+    }
+
+    get(index)
+    {
+        return this.array[index];
+    }
+
+    remove(value)
+    {
+        this.array = removeFromArray(this.array, value);
+    }
+
+    length()
+    {
+        return this.array.length;
+    }
+
+    clear()
+    {
+        this.array = [];
+    }
+
+    execute(ev)
+    {
+        this.array.forEach(f => {
+            f(ev);
+        });
+    }
+
+    toArray()
+    {
+        return this.array;
+    }
+
+    clone()
+    {
+        let arr = new SimpleArray();
+        arr.array = this.array;
+        return arr;
+    }
+}
+
+function removeFromArray(array, value)
+{
+    return array.filter(item => item !== value);
+}
+
+
 class SuiObject
 {
+
+
+}
+
+class SuiView extends SuiObject
+{
+    constructor(element)
+    {
+        super();
+        this.element = element;
+        this.eventHandler = {};
+        this.settings = {};
+
+        this.eventHandler.attachHandler = new SimpleArray();
+        this.eventHandler.detatchHandler = new SimpleArray();
+        this.eventHandler.clickHandler = new SimpleArray();
+		
+		this.setId(getNewId());
+    }
+
+    render()
+    {
+    }
+
+    clone()
+    {
+        let obj = JSON.parse(JSON.stringify(this));
+        obj.eventHandler = this.eventHandler;
+        obj.element = this.element.cloneNode(true);
+        return obj;
+    }
+
+    addAttachHandler(handler)
+    {
+        this.eventHandler.attachHandler.push(handler);
+    }
+
+    removeAttachHandler(handler)
+    {
+        this.eventHandler.attachHandler.remove(handler);
+    }
+
+    addDetatchHandler(handler)
+    {
+        this.eventHandler.detatchHandler.push(handler);
+    }
+
+    removeDetatchHandler(handler)
+    {
+        this.eventHandler.detatchHandler.remove(handler);
+    }
+
+    addClickHandler(handler)
+    {
+        var that = this;
+        this.eventHandler.clickHandler.push(handler);
+        if (this.eventHandler.clickHandler.length() == 1)
+        {
+            this.eventHandler.clickFunction = function(event){
+                that.eventHandler.clickHandler.execute(event);
+            };
+            this.element.onclick = this.eventHandler.clickFunction;
+        }
+    }
+
+    removeClickHandler(handler)
+    {
+        this.eventHandler.clickHandler.remove(handler);
+
+        if (this.eventHandler.clickHandler.length() == 0)
+        {
+            this.element.onclick = undefined;
+            this.eventHandler.clickFunction = undefined;
+        }
+    }
 
     addCssClass(cssClass)
     {
@@ -19,14 +160,23 @@ class SuiObject
     {
         $(this.element).css(property, value);
     }
+	
+	setId(id)
+	{
+		this.element.id = id;
+	}
+	
+	getId()
+	{
+		return this.element.id;
+	}
 }
 
-class Core extends SuiObject
+class SuiCore extends SuiView
 {
     constructor()
     {
-        super();
-        this.element = document.getElementsByTagName("BODY")[0];
+        super(document.getElementsByTagName("BODY")[0]);
         this.pages = [];
     }
 
@@ -41,13 +191,16 @@ class Core extends SuiObject
     }
 }
 
-class Container extends SuiObject
+class SuiDiv extends SuiView
 {
     constructor()
     {
-        super();
-        this.element = document.createElement("div");
+        super(document.createElement("div"));
     }
+}
+
+class SuiContainer extends SuiDiv
+{
 
     addChild(child)
     {
@@ -61,28 +214,115 @@ class Container extends SuiObject
 }
 
 
-class Control extends SuiObject
+class SuiControl extends SuiView
 {
-    
+    constructor(element)
+    {
+        super(element);
+    }
+
+    setLabel(label)
+    {
+        if (typeof(label) === Label)
+        {
+            this.label = label;
+        }
+        else if (typeof(label) === String)
+        {
+            var l = new Label();
+            l.setText(label);
+            this.label = l;
+        }
+    }
+
+    getLabel()
+    {
+        return this.label;
+    }
 }
 
-class Spacer extends SuiObject
+class SuiSpacer extends SuiDiv
 {
     constructor()
     {
         super();
-        this.element = document.createElement("div");
         this.addCssClass("SUI-Spacer");
     }
 }
 
+class SuiProperty
+{
+	constructor()
+	{
+        this.eventHandler = {};
+        this.eventHandler.changeHandler = new SimpleArray();
+	}
+	
+	addChangeHandler(handler)
+	{
+		this.eventHandler.changeHandler.push(handler);
+	}
+	
+	get()
+	{
+		return this.value;
+	}
+	
+	set(value, fireEvent = true)
+	{
+		this.value = value;
+		
+		if (fireEvent)
+		{
+			this.eventHandler.changeHandler.execute(value);
+		}
+	}
+	
+	bind(property)
+	{
+		property.addChangeHandler((ev)=>{
+			this.set(property.get());
+		});
+	}
+	
+	twoWayBind(property)
+	{
+		property.bind(this);
+		bind(property);
+	}
+}
 
-class Button extends Control
+
+
+class SuiDivControl extends SuiControl
+{
+	constructor()
+    {
+        super(document.createElement("div"));
+    }
+}
+
+class SuiSpanControl extends SuiControl
+{
+	constructor()
+    {
+        super(document.createElement("span"));
+    }
+}
+
+class SuiInputControl extends SuiControl
+{
+	constructor()
+    {
+        super(document.createElement("input"));
+    }
+}
+
+class Button extends SuiDivControl
 {
     constructor()
     {
         super();
-        this.element = document.createElement("div");
         this.addCssClass("SUI-Button");
     }
 
@@ -110,17 +350,16 @@ class Button extends Control
     
 }
 
-class SuiInput extends Control
+class SuiInput extends SuiInputControl
 {
 
 }
 
 class TextBox extends SuiInput
 {
-    constructor()
+    constructor(el)
     {
-        super();
-        this.element = document.createElement("input");
+        super(el);
         this.addCssClass("SUI-TextBox");
     }
 }
@@ -179,29 +418,26 @@ class TextArea extends SuiInput
 {
     constructor()
     {
-        super();
-        this.element = document.createElement("textarea");
+        super(document.createElement("textarea"));
         this.addCssClass("SUI-TextArea");
     }
 }
 
-class Checkbox extends Control
+class Checkbox extends SuiInputControl
 {
     constructor()
     {
         super();
-        this.element = document.createElement("input");
         this.element.type = "checkbox";
         this.addCssClass("SUI-CheckBox");
     }
 }
 
-class RadioGroup extends Control
+class RadioGroup extends SuiDivControl
 {
     constructor()
     {
         super();
-        this.element = document.createElement("div");
         this.addCssClass("SUI-RadioGroup");
     }
 
@@ -217,23 +453,21 @@ class RadioGroup extends Control
     }
 }
 
-class RadioButton extends Control
+class RadioButton extends SuiInputControl
 {
     constructor()
     {
         super();
-        this.element = document.createElement("input");
         this.element.type = "radio";
         this.addCssClass("SUI-RadioButton");
     }
 }
 
-class Icon extends Control
+class Icon extends SuiSpanControl
 {   
     constructor()
     {
         super();
-        this.element = document.createElement("span");
         this.addCssClass("SUI-Icon");
     }
 
@@ -248,22 +482,20 @@ class Icon extends Control
     }
 }
 
-class Image extends Control
+class Image extends SuiControl
 {
     constructor()
     {
-        super();
-        this.element = document.createElement("img");
+        super(document.createElement("img"));
         this.addCssClass("SUI-Image");
     }
 }
 
-class Text extends Control
+class Text extends SuiSpanControl
 {
     constructor()
     {
         super();
-        this.element = document.createElement("span");
         this.addCssClass("SUI-Text");
     }
 
@@ -271,14 +503,47 @@ class Text extends Control
     {
         this.element.innerText = text;
     }
+	
+	setFontWeight(weight)
+	{
+		this.element.style.fontWeight = weight;
+	}
+	
+	setFontStyle(style)
+	{
+		this.element.style.fontStyle = style;
+	}
+	
+	setColor(color)
+	{
+		this.element.style.color = color;
+	}
+	
+	setBackground(background)
+	{
+		this.element.style.background = background;
+	}
 }
 
-class HTML extends Control
+class Label extends Text
 {
     constructor()
     {
         super();
-        this.element = document.createElement("div");
+        this.addCssClass("SUI-Label");
+    }
+    
+    setText(text)
+    {
+        this.element.innerText = text;
+    }
+}
+
+class HTML extends SuiDivControl
+{
+    constructor()
+    {
+        super();
         this.addCssClass("SUI-Html");
     }
 
@@ -291,9 +556,94 @@ class HTML extends Control
     }
 }
 
+class Slider extends SuiDivControl
+{
+    constructor()
+    {
+        super();
+        this.addCssClass("SUI-Slider");
+		
+		this.bar = document.createElement("div");
+		this.bar.classList.add("SUI-Slider-bar");
+		this.element.appendChild(this.bar);
+		
+		this.drag = document.createElement("div");
+		this.drag.classList.add("SUI-Slider-drag");
+		this.element.appendChild(this.drag);
+		
+		this.tag = document.createElement("div");
+		this.tag.classList.add("SUI-Slider-tag");
+		this.element.appendChild(this.tag);
+		
+		this.min = new SuiProperty();
+		this.max = new SuiProperty();
+		this.value = new SuiProperty();
+		
+		this.min.addChangeHandler((ev) => {
+			this.setValue(this.value.get());
+		});
+		
+		this.max.addChangeHandler ((ev) => {
+			this.setValue(this.value.get());
+		});
+		
+		this.value.addChangeHandler((ev) => {
+			var range = this.max.get() - this.min.get();
+			var cleanValue = ev - this.min.get();
+			var width = this.element.offsetWidth - this.drag.offsetWidth;
+			var left = width / range * cleanValue + "px";
+			this.drag.style.left = left;
+			this.tag.style.left = left;
+			this.element.setAttribute("value", this.value.get());
+			this.tag.innerText = this.value.get();
+		});
+		
+        this.element.onmousedown = () => {
+			document.onmousemove = (ev) =>{
+				var left = Math.min(Math.max(0, ev.offsetX), this.element.offsetWidth - this.drag.offsetWidth);
+				var range = this.max.get() - this.min.get();
+				var width = this.element.offsetWidth - this.drag.offsetWidth;
+				this.setValue(Math.round(left / (width / range) + this.min.get()));
+				
+				this.tag.style.display = "block";
+			}
+			
+			document.onmouseup = () =>{
+				document.onmousemove = null;
+				document.onmouseup = null;
+				this.tag.style.display = null;
+			}
+		};
+    }
+
+	setMin(min)
+	{
+		this.min.set(min);
+	}
+	
+	setMax(max)
+	{
+		this.max.set(max);
+	}
+	
+	setValue(value)
+	{
+		this.value.set(value);
+	}
+
+	getValue()
+	{
+		return this.value;
+	}
+	
+	setBarBackground(background)
+	{
+		this.bar.style.background = background;
+	}
+}
 
 
-class Page extends Container
+class Page extends SuiContainer
 {
     constructor()
     {
@@ -334,7 +684,7 @@ class Page extends Container
     }
 }
 
-class HFlexContainer extends Container
+class HFlexContainer extends SuiContainer
 {
     constructor()
     {
@@ -343,7 +693,7 @@ class HFlexContainer extends Container
     }
 }
 
-class VFlexContainer extends Container
+class VFlexContainer extends SuiContainer
 {
     constructor()
     {
@@ -352,7 +702,7 @@ class VFlexContainer extends Container
     }
 }
 
-class ButtonContainer extends Container
+class ButtonContainer extends SuiContainer
 {
     constructor()
     {
@@ -360,3 +710,98 @@ class ButtonContainer extends Container
         this.addCssClass("SUI-ButtonContainer");
     }
 }
+
+class Form extends SuiContainer
+{
+    constructor()
+    {
+        super();
+        this.addCssClass("SUI-Form");
+    }
+
+
+}
+
+class SimpleForm extends Form
+{
+    
+    constructor()
+    {
+        super();
+        this.addCssClass("SUI-SimpleForm");
+        this.controls = [];
+    }
+
+    addChild(child)
+    {
+        this.controls.push(child);
+    }
+
+    removeChild(child)
+    {
+        this.controls.pop(child);
+    }
+
+    setLayout()
+    {
+
+    }
+
+    refresh()
+    {
+        for(var control in this.controls)
+        {
+            var c = new HFlexContainer();
+            c.addChild(control.getLabel());
+            c.addChild(control.element);
+            this.addChild(c);
+        }
+    }
+}
+class List extends SuiView
+{
+    constructor()
+    {
+        super();
+        this.element = document.createElement("div");
+        this.addCssClass("SUI-List");
+    }
+
+    addItem(listItem)
+    {
+        this.element.appendChild(listItem.element);
+    }
+
+    addContextControl(control)
+    {
+        
+    }
+
+}
+
+class ListItem extends SuiView
+{
+    constructor()
+    {
+        super();
+        this.element = document.createElement("div");
+        this.addCssClass("SUI-ListItem");
+    }
+}
+
+class CustomListItem extends ListItem
+{
+    constructor()
+    {
+        super();
+    }
+
+    addControl(control)
+    {
+        this.element.appendChild(control.element);
+    }
+}
+
+
+
+
