@@ -10,6 +10,25 @@ function getNewId()
 	return "SUI_" + this.counter++;
 }
 
+function createCSSLinkElement(cssPath)
+{
+	var linkElem = document.createElement('link');
+		linkElem.setAttribute('rel', 'stylesheet');
+		linkElem.setAttribute('href', cssPath);
+	
+	return linkElem;
+}
+
+function getSafeAttribute(obj, attribute, def)
+{
+	if (obj.hasAttribute(attribute))
+	{
+		return obj.getAttribute(attribute);
+	}
+	
+	return def;
+}
+
 class SimpleArray
 {
     constructor()
@@ -68,9 +87,19 @@ function removeFromArray(array, value)
 }
 
 
-class SuiObject
+
+class SuiObject extends HTMLElement
 {
 
+	constructor()
+	{
+		super();
+		this.shadow = this.attachShadow({mode: 'closed'});
+		
+		// Attach the created element to the shadow dom
+		this.shadow.appendChild(createCSSLinkElement('dev/css/structure.css'));
+		this.shadow.appendChild(createCSSLinkElement('dev/css/style.css'));
+	}
 
 }
 
@@ -80,6 +109,7 @@ class SuiView extends SuiObject
     {
         super();
         this.element = element;
+		this.shadow.appendChild(element);
         this.eventHandler = {};
         this.settings = {};
 
@@ -291,8 +321,6 @@ class SuiProperty
 		bind(property);
 	}
 }
-
-
 
 class SuiDivControl extends SuiControl
 {
@@ -579,6 +607,16 @@ class Slider extends SuiDivControl
 		this.max = new SuiProperty();
 		this.value = new SuiProperty();
 		
+		this.min.set(0);
+		this.max.set(100);
+		this.value.set(0);
+		
+		setTimeout(() => {
+		this.min.set(getSafeAttribute(this, "data-min", 0));
+		this.max.set(getSafeAttribute(this, "data-max", 100));
+		this.value.set(getSafeAttribute(this, "data-value", 0));
+		}, 2);
+		
 		this.min.addChangeHandler((ev) => {
 			this.setValue(this.value.get());
 		});
@@ -592,20 +630,31 @@ class Slider extends SuiDivControl
 			var cleanValue = ev - this.min.get();
 			var width = this.element.offsetWidth - this.drag.offsetWidth;
 			var left = width / range * cleanValue + "px";
+			
 			this.drag.style.left = left;
+			this.tag.style.right = null;
 			this.tag.style.left = left;
 			this.element.setAttribute("value", this.value.get());
 			this.tag.innerText = this.value.get();
+			
+			var rect = this.tag.getBoundingClientRect();
+			if (rect.top < 0)
+			{
+				this.tag.style.marginTop = "1.35rem";
+			}
+			if (rect.right > window.innerWidth)
+			{
+				this.tag.style.right = "0";
+				this.tag.style.left = null;
+			}
 		});
 		
-        this.element.onmousedown = () => {
-			document.onmousemove = (ev) =>{
-				var left = Math.min(Math.max(0, ev.offsetX), this.element.offsetWidth - this.drag.offsetWidth);
-				var range = this.max.get() - this.min.get();
-				var width = this.element.offsetWidth - this.drag.offsetWidth;
-				this.setValue(Math.round(left / (width / range) + this.min.get()));
-				
-				this.tag.style.display = "block";
+        this.element.onmousedown = (evDown) => {
+			
+			this.calcPos(evDown);
+			
+			document.onmousemove = (evMove) =>{
+				this.calcPos(evMove);
 			}
 			
 			document.onmouseup = () =>{
@@ -615,6 +664,17 @@ class Slider extends SuiDivControl
 			}
 		};
     }
+
+	calcPos(ev)
+	{
+		var width = this.element.offsetWidth - this.drag.offsetWidth / 2;
+		var range = this.max.get() - this.min.get();
+		var left = Math.min(Math.max(0, ev.offsetX), width);
+		var value = Math.round(left / (width / range)) + parseInt(this.min.get());
+		this.setValue(value);
+		
+		this.tag.style.display = "block";	
+	}
 
 	setMin(min)
 	{
@@ -643,6 +703,7 @@ class Slider extends SuiDivControl
 }
 
 
+customElements.define('sui-slider', Slider);
 class Page extends SuiContainer
 {
     constructor()

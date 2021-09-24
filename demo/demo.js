@@ -1,5 +1,6 @@
 $( document ).ready(function() {
-    var core = new SuiCore();
+    	
+	var core = new SuiCore();
 
     var page = new Page();
 

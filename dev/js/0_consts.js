@@ -10,6 +10,25 @@ function getNewId()
 	return "SUI_" + this.counter++;
 }
 
+function createCSSLinkElement(cssPath)
+{
+	var linkElem = document.createElement('link');
+		linkElem.setAttribute('rel', 'stylesheet');
+		linkElem.setAttribute('href', cssPath);
+	
+	return linkElem;
+}
+
+function getSafeAttribute(obj, attribute, def)
+{
+	if (obj.hasAttribute(attribute))
+	{
+		return obj.getAttribute(attribute);
+	}
+	
+	return def;
+}
+
 class SimpleArray
 {
     constructor()

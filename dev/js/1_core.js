@@ -1,6 +1,16 @@
-class SuiObject
+
+class SuiObject extends HTMLElement
 {
 
+	constructor()
+	{
+		super();
+		this.shadow = this.attachShadow({mode: 'closed'});
+		
+		// Attach the created element to the shadow dom
+		this.shadow.appendChild(createCSSLinkElement('dev/css/structure.css'));
+		this.shadow.appendChild(createCSSLinkElement('dev/css/style.css'));
+	}
 
 }
 
@@ -10,6 +20,7 @@ class SuiView extends SuiObject
     {
         super();
         this.element = element;
+		this.shadow.appendChild(element);
         this.eventHandler = {};
         this.settings = {};
 
@@ -221,4 +232,3 @@ class SuiProperty
 		bind(property);
 	}
 }
-
