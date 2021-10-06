@@ -21,15 +21,25 @@ class SuiView extends SuiObject
         super();
         this.element = element;
 		this.shadow.appendChild(element);
-        this.eventHandler = {};
-        this.settings = {};
-
-        this.eventHandler.attachHandler = new SimpleArray();
-        this.eventHandler.detatchHandler = new SimpleArray();
-        this.eventHandler.clickHandler = new SimpleArray();
+		
+		this.initProperties();
+		this.initEvents();
 		
 		this.setId(getNewId());
     }
+
+	initProperties()
+	{
+        this.settings = {};
+	}
+	
+	initEvents()
+	{
+        this.eventHandler = {};
+        this.eventHandler.attachHandler = new SimpleArray();
+        this.eventHandler.detatchHandler = new SimpleArray();
+        this.eventHandler.clickHandler = new SimpleArray();
+	}
 
     render()
     {

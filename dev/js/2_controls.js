@@ -57,7 +57,15 @@ class Button extends SuiDivControl
 
 class SuiInput extends SuiInputControl
 {
-
+	setType(type)
+	{
+        this.element.type = type;
+	}
+	
+	getType()
+	{
+		return this.element.type;
+	}
 }
 
 class TextBox extends SuiInput
@@ -66,56 +74,6 @@ class TextBox extends SuiInput
     {
         super(el);
         this.addCssClass("SUI-TextBox");
-    }
-}
-
-class TextBoxEmail extends TextBox
-{
-    constructor()
-    {
-        super();
-        this.element.type = "email";
-        this.addCssClass("SUI-TextBoxEmail");
-    }
-}
-
-class TextBoxUrl extends TextBox
-{
-    constructor()
-    {
-        super();
-        this.element.type = "url";
-        this.addCssClass("SUI-TextBoxUrl");
-    }
-}
-
-class TextBoxTel extends TextBox
-{
-    constructor()
-    {
-        super();
-        this.element.type = "tel";
-        this.addCssClass("SUI-TextBoxTel");
-    }
-}
-
-class NumberBox extends TextBox
-{
-    constructor()
-    {
-        super();
-        this.element.type = "number";
-        this.addCssClass("SUI-TextBoxNumber");
-    }
-}
-
-class ColorPicker extends TextBox
-{
-    constructor()
-    {
-        super();
-        this.element.type = "color";
-        this.addCssClass("SUI-ColorPicker");
     }
 }
 
@@ -280,13 +238,7 @@ class Slider extends SuiDivControl
 		this.tag.classList.add("SUI-Slider-tag");
 		this.element.appendChild(this.tag);
 		
-		this.min = new SuiProperty();
-		this.max = new SuiProperty();
-		this.value = new SuiProperty();
 		
-		this.min.set(0);
-		this.max.set(100);
-		this.value.set(0);
 		
 		setTimeout(() => {
 		this.min.set(getSafeAttribute(this, "data-min", 0));
@@ -341,6 +293,22 @@ class Slider extends SuiDivControl
 			}
 		};
     }
+	
+	initProperties()
+	{
+		super.initProperties();
+		this.min = new SuiProperty();
+		this.max = new SuiProperty();
+		this.value = new SuiProperty();
+		this.min.set(0);
+		this.max.set(100);
+		this.value.set(0);
+	}
+	
+	initEvents()
+	{
+		super.initEvents();
+	}
 
 	calcPos(ev)
 	{
@@ -381,3 +349,4 @@ class Slider extends SuiDivControl
 
 
 customElements.define('sui-slider', Slider);
+customElements.define('sui-textbox', TextBox);

@@ -51,8 +51,7 @@ body {
   height: 1rem;
   width: 1rem;
   position: absolute;
-  cursor: pointer;
-  pointer-events: none; }
+  cursor: pointer; }
 
 .SUI-Slider-tag {
   display: none;

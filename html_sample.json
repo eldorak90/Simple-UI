@@ -1,0 +1,10 @@
+{
+	head: {},
+	body:
+	{
+		style : "",
+		input : {
+			type : "text"
+		}
+	}
+}
